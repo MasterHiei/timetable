@@ -18,6 +18,7 @@ class TimeController extends ValueNotifier<TimeRange> {
     Duration? maxDuration,
     TimeRange? initialRange,
     TimeRange? maxRange,
+    this.tzIdentifier,
     this.minDayHeight,
   })  : assert(!minDuration.isNegative),
         assert(minDuration <= maxPossibleDuration),
@@ -36,6 +37,7 @@ class TimeController extends ValueNotifier<TimeRange> {
               maxRange == null ||
               maxDuration <= maxRange.duration,
         ),
+        assert(tzIdentifier == null || tzIdentifier.isNotEmpty),
         maxRange = maxRange ?? TimeRange.fullDay,
         assert(minDayHeight == null || minDayHeight > 0),
         assert(minDayHeight == null || minDayHeight.isFinite),
@@ -85,10 +87,21 @@ class TimeController extends ValueNotifier<TimeRange> {
   Duration get actualMaxDuration =>
       maxDuration.coerceAtMost(maxDurationFromMinDayHeightOrDefault);
 
+  /// Whether the specified time zone is used when displaying current time.
+  bool get useTimeZone => tzIdentifier != null;
+
   static const maxPossibleDuration = Duration(days: 1);
 
   /// The maximum range that can be revealed when zooming out.
   final TimeRange maxRange;
+
+  /// The time zone identifier that be used when displaying current time.
+  /// If null, the system time zone is used.
+  ///
+  /// Note: Ensure timezone database is initialized before use
+  ///
+  /// More information: [https://pub.dev/packages/timezone#initialization]
+  final String? tzIdentifier;
 
   @override
   set value(TimeRange value) {
